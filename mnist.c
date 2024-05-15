@@ -123,10 +123,15 @@ void save_weight(neural_network_t * network)
     }
 }
 int main() {
-    // 加载训练和测试数据集
-    mnist_dataset_t *train_dataset = mnist_get_dataset("data/train-images-idx3-ubyte", "data/train-labels-idx1-ubyte");
-    mnist_dataset_t *test_dataset = mnist_get_dataset("data/t10k-images-idx3-ubyte", "data/t10k-labels-idx1-ubyte");
+    FILE *fp = fopen("result.txt", "w");  // 打开文件用于记录结果
+    if (fp == NULL) {
+        perror("Unable to open file");
+        return 1;
+    }
 
+    // 加载数据集
+    mnist_dataset_t *train_dataset = mnist_get_dataset(train_images_file, train_labels_file);
+    mnist_dataset_t *test_dataset = mnist_get_dataset(test_images_file, test_labels_file);
     if (train_dataset == NULL || test_dataset == NULL) {
         fprintf(stderr, "Failed to load datasets.\n");
         return 1;
@@ -144,22 +149,21 @@ int main() {
     printf("Training the network...\n");
     for (int step = 0; step < STEPS; step++) {
         float loss = neural_network_training_step(train_dataset, network, 0.01);
+        float accuracy = calculate_accuracy(test_dataset, network); // 计算当前准确率
+        fprintf(fp, "%d\t%.3f\t%.2f\n", step, loss, accuracy * 100); // 记录步数、损失和准确率
         if (step % 100 == 0) {
-            printf("Step %d, Loss: %.3f\n", step, loss);
+            printf("Step %d, Loss: %.3f, Accuracy: %.2f%%\n", step, loss, accuracy * 100);
         }
     }
 
-    // 计算测试集的准确率
-    float accuracy = calculate_accuracy(test_dataset, network);
-    printf("Test Accuracy: %.2f%%\n", accuracy * 100);
-
-    // 保存网络权重到BMP文件
+    // 保存权重
     save_weight(network);
 
     // 释放资源
     mnist_free_dataset(train_dataset);
     mnist_free_dataset(test_dataset);
     free(network);
+    fclose(fp); // 关闭文件
 
     return 0;
 }
