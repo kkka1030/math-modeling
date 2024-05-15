@@ -50,48 +50,6 @@ float calculate_accuracy(mnist_dataset_t * dataset, neural_network_t * network)
     return ((float) correct) / ((float) dataset->size);
 }
 
-void save_weight(neural_network_t * network);
-
-int main(int argc, char *argv[])
-{
-    mnist_dataset_t * train_dataset, * test_dataset;
-    mnist_dataset_t batch;
-    neural_network_t network;
-    float loss, accuracy;
-    int i, batches;
-
-    // Read the datasets from the files
-    train_dataset = mnist_get_dataset(train_images_file, train_labels_file);
-    test_dataset = mnist_get_dataset(test_images_file, test_labels_file);
-
-    // Initialise weights and biases with random values
-    neural_network_random_weights(&network);
-
-    // Calculate how many batches (so we know when to wrap around)
-    batches = train_dataset->size / BATCH_SIZE;
-
-    for (i = 0; i < STEPS; i++) {
-        // Initialise a new batch
-        mnist_batch(train_dataset, &batch, 100, i % batches);
-
-        // Run one step of gradient descent and calculate the loss
-        loss = neural_network_training_step(&batch, &network, 0.5);
-        // Calculate the accuracy using the whole test dataset
-        accuracy = calculate_accuracy(test_dataset, &network);
-
-        printf("Step %04d\tAverage Loss: %.2f\tAccuracy: %.3f\n", i, loss / batch.size, accuracy);
-    }
-
-    // Save weight
-    save_weight(&network); 
-
-    // Cleanup
-    mnist_free_dataset(train_dataset);
-    mnist_free_dataset(test_dataset);
-
-    return 0;
-}
-
 void save_weight(neural_network_t * network)
 {
     const int width = 28;                          
@@ -99,7 +57,12 @@ void save_weight(neural_network_t * network)
     const int pixel_size = 3;                         
 
     struct BMPHeader header;
-    int padding = createBMPHeader(&header, width, height, pixel_size);
+
+    // 计算填充字节数
+    int padding = (4 - (width * pixel_size) % 4) % 4;
+
+    // 创建BMP头
+    createBMPHeader(&header, width, height, pixel_size, padding);
 
     for (int i = 0; i < MNIST_LABELS; i++)
     {
