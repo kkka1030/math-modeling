@@ -6,7 +6,7 @@
 #include "include/mnist_file.h"
 #include "include/neural_network.h"
 
-#include "createBMP.h"
+#include "include/createBMP.h"
 
 #define STEPS 1000
 #define BATCH_SIZE 100
