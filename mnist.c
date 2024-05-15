@@ -11,9 +11,7 @@
 #define STEPS 1000
 #define BATCH_SIZE 100
 
-/**
- * Downloaded from: http://yann.lecun.com/exdb/mnist/
- */
+
 const char * train_images_file = "data/train-images-idx3-ubyte";
 const char * train_labels_file = "data/train-labels-idx1-ubyte";
 const char * test_images_file = "data/t10k-images-idx3-ubyte";
@@ -123,4 +121,45 @@ void save_weight(neural_network_t * network)
         }
         fclose(file);  
     }
+}
+int main() {
+    // 加载训练和测试数据集
+    mnist_dataset_t *train_dataset = mnist_get_dataset("data/train-images-idx3-ubyte", "data/train-labels-idx1-ubyte");
+    mnist_dataset_t *test_dataset = mnist_get_dataset("data/t10k-images-idx3-ubyte", "data/t10k-labels-idx1-ubyte");
+
+    if (train_dataset == NULL || test_dataset == NULL) {
+        fprintf(stderr, "Failed to load datasets.\n");
+        return 1;
+    }
+
+    // 初始化神经网络
+    neural_network_t *network = malloc(sizeof(neural_network_t));
+    if (network == NULL) {
+        fprintf(stderr, "Failed to allocate memory for the neural network.\n");
+        return 1;
+    }
+    neural_network_random_weights(network);
+
+    // 训练神经网络
+    printf("Training the network...\n");
+    for (int step = 0; step < STEPS; step++) {
+        float loss = neural_network_training_step(train_dataset, network, 0.01);
+        if (step % 100 == 0) {
+            printf("Step %d, Loss: %.3f\n", step, loss);
+        }
+    }
+
+    // 计算测试集的准确率
+    float accuracy = calculate_accuracy(test_dataset, network);
+    printf("Test Accuracy: %.2f%%\n", accuracy * 100);
+
+    // 保存网络权重到BMP文件
+    save_weight(network);
+
+    // 释放资源
+    mnist_free_dataset(train_dataset);
+    mnist_free_dataset(test_dataset);
+    free(network);
+
+    return 0;
 }
