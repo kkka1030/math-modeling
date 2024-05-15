@@ -123,13 +123,13 @@ void save_weight(neural_network_t * network)
     }
 }
 int main() {
-    FILE *fp = fopen("result.txt", "w");  // 打开文件用于记录结果
+    FILE *fp = fopen("result.txt", "w"); // 打开文件用于记录损失和准确率
+    FILE *fp_final; // 用于在最后一次迭代后记录预测结果和真实标签
     if (fp == NULL) {
         perror("Unable to open file");
         return 1;
     }
 
-    // 加载数据集
     mnist_dataset_t *train_dataset = mnist_get_dataset(train_images_file, train_labels_file);
     mnist_dataset_t *test_dataset = mnist_get_dataset(test_images_file, test_labels_file);
     if (train_dataset == NULL || test_dataset == NULL) {
@@ -137,7 +137,6 @@ int main() {
         return 1;
     }
 
-    // 初始化神经网络
     neural_network_t *network = malloc(sizeof(neural_network_t));
     if (network == NULL) {
         fprintf(stderr, "Failed to allocate memory for the neural network.\n");
@@ -145,25 +144,34 @@ int main() {
     }
     neural_network_random_weights(network);
 
-    // 训练神经网络
     printf("Training the network...\n");
     for (int step = 0; step < STEPS; step++) {
         float loss = neural_network_training_step(train_dataset, network, 0.01);
-        float accuracy = calculate_accuracy(test_dataset, network); // 计算当前准确率
-        fprintf(fp, "%d\t%.3f\t%.2f\n", step, loss, accuracy * 100); // 记录步数、损失和准确率
+        float accuracy = calculate_accuracy(test_dataset, network);
+        fprintf(fp, "%d\t%.3f\t%.2f\n", step, loss, accuracy * 100);
         if (step % 100 == 0) {
             printf("Step %d, Loss: %.3f, Accuracy: %.2f%%\n", step, loss, accuracy * 100);
         }
+
+        if (step == STEPS - 1) { // 最后一次迭代
+            fp_final = fopen("final_predictions.txt", "w");
+            if (fp_final == NULL) {
+                perror("Unable to open final predictions file");
+                return 1;
+            }
+            for (int i = 0; i < test_dataset->size; i++) {
+                int predicted_label = predict(network, &test_dataset->images[i]);
+                fprintf(fp_final, "%d %d\n", predicted_label, test_dataset->labels[i]);
+            }
+            fclose(fp_final); // 关闭最终预测结果文件
+        }
     }
 
-    // 保存权重
     save_weight(network);
-
-    // 释放资源
     mnist_free_dataset(train_dataset);
     mnist_free_dataset(test_dataset);
     free(network);
-    fclose(fp); // 关闭文件
+    fclose(fp); // 关闭结果文件
 
     return 0;
 }
