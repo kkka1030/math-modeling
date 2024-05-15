@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "createBMP.h"
-#include "mnist_file.h"
+#include "include/createBMP.h"
+#include "include/mnist_file.h"
 
 int main() {  
 
