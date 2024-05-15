@@ -1,19 +1,27 @@
 CC = gcc
-CFLAGS = -lm
-
-# 目标文件
+CFLAGS = -Iinclude -Wall
+LDFLAGS = 
 TARGET = mnist
+PYSCRIPT = draw_result.py
 
-# 源文件
-SRCS = mnist.c mnist_file.c neural_network.c createBMP.c
+# 源代码文件和目标文件
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
 
-# 生成的目标
-all: $(TARGET)
+all: $(TARGET) run_py
 
-$(TARGET): $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -o $(TARGET)
+$(TARGET): $(OBJ)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-# 清理目标
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+run_py:
+	python $(PYSCRIPT)
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJ) $(TARGET)
+
+.PHONY: clean all run_py
+
 
