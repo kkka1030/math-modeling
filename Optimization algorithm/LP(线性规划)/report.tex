@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[UTF8]{ctex}
+
+\title{线性规划}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{简介}
+线性规划（Linear Programming, LP）是一种数学优化方法，用于在给定约束条件下最优化线性目标函数。它在资源分配、生产计划、金融投资等多个领域有广泛应用。本文介绍了线性规划的基本概念、求解方法，并提供了一个使用Python中SciPy库的\texttt{linprog}函数求解的实际例子。
+
+\section{线性规划模型}
+一个标准的线性规划问题可以表示为：
+\begin{align*}
+\text{最小化或最大化} \quad & \mathbf{c}^T \mathbf{x} \\
+\text{约束条件} \quad & \mathbf{A}_{ub} \mathbf{x} \leq \mathbf{b}_{ub} \\
+& \mathbf{A}_{eq} \mathbf{x} = \mathbf{b}_{eq} \\
+& \mathbf{lb} \leq \mathbf{x} \leq \mathbf{ub}
+\end{align*}
+其中：
+\begin{itemize}
+    \item \(\mathbf{x} = (x_1, x_2, \ldots, x_n)^T\) 是决策变量向量。
+    \item \(\mathbf{c} = (c_1, c_2, \ldots, c_n)^T\) 是目标函数的系数向量。
+    \item \(\mathbf{A}_{ub}\) 和 \(\mathbf{b}_{ub}\) 定义不等式约束。
+    \item \(\mathbf{A}_{eq}\) 和 \(\mathbf{b}_{eq}\) 定义等式约束。
+    \item \(\mathbf{lb}\) 和 \(\mathbf{ub}\) 是决策变量的上下界。
+\end{itemize}
+
+\section{线性规划的基本要素}
+\begin{itemize}
+    \item \textbf{目标函数（Objective Function）}：这是需要优化的函数，可以是求最大化或最小化。目标函数是决策变量的线性组合。例如：最大化利润 \( Z = 3x_1 + 2x_2 \)。
+    \item \textbf{决策变量（Decision Variables）}：这些是我们可以控制或决定的变量，通常表示为 \( x_1, x_2, \ldots, x_n \)。
+    \item \textbf{约束条件（Constraints）}：这些是对决策变量的限制条件，通常是线性不等式或等式。例如：资源约束 \( 2x_1 + x_2 \leq 100 \)。
+    \item \textbf{非负约束（Non-negativity Constraints）}：决策变量通常不能为负，即 \( x_i \geq 0 \)。
+\end{itemize}
+
+\section{线性规划的求解方法}
+\begin{itemize}
+    \item \textbf{图解法（Graphical Method）}：适用于两个决策变量的简单问题，通过绘制约束条件的可行域图形和目标函数等值线，寻找最优解。
+    \item \textbf{单纯形法（Simplex Method）}：一种迭代算法，通过在可行域的顶点之间移动来寻找最优解，适用于大多数实际问题。
+    \item \textbf{内点法（Interior Point Method）}：另一种有效的迭代算法，尤其适用于大规模线性规划问题。
+    \item \textbf{计算机软件}：如Matlab、Python（SciPy库）、Excel等，都有内置的线性规划求解工具。
+\end{itemize}
+
+\section{实例：生产计划优化}
+考虑一个生产计划问题，工厂生产两种产品，每种产品的利润不同，且有生产资源的限制。
+
+\subsection{问题描述}
+\begin{itemize}
+    \item 产品A的利润是3元/单位。
+    \item 产品B的利润是2元/单位。
+    \item 每天最多生产40个单位的产品A。
+    \item 每天最多生产60个单位的产品B。
+    \item 总生产时间每天不超过180小时。
+    \item 产品A每单位需要4小时，产品B每单位需要2小时。
+\end{itemize}
+
+\subsection{线性规划模型}
+\begin{align*}
+\text{目标}： & \quad \text{最大化总利润 } Z \\
+\text{决策变量}： & \quad x_1 \text{（每天生产的产品A的数量）} \\
+& \quad x_2 \text{（每天生产的产品B的数量）} \\
+\text{目标函数}： & \quad Z = 3x_1 + 2x_2 \\
+\text{约束条件}： & \quad x_1 \leq 40 \\
+& \quad x_2 \leq 60 \\
+& \quad 4x_1 + 2x_2 \leq 180 \\
+& \quad x_1 \geq 0 \\
+& \quad x_2 \geq 0
+\end{align*}
+
+\section{使用Python和SciPy求解}
+以下是使用Python的SciPy库来求解这个线性规划问题的代码示例：
+
+\begin{verbatim}
+from scipy.optimize import linprog
+
+# 定义目标函数的系数
+c = [-3, -2]
+
+# 定义不等式约束矩阵和向量
+A = [[1, 0], [0, 1], [4, 2]]
+b = [40, 60, 180]
+
+# 定义变量的界
+x0_bounds = (0, None)
+x1_bounds = (0, None)
+
+# 求解线性规划问题
+result = linprog(c, A_ub=A, b_ub=b, bounds=[x0_bounds, x1_bounds], method='highs')
+
+# 输出结果
+print("最佳生产数量 (产品A, 产品B):", result.x)
+print("最大化的利润:", -result.fun)
+\end{verbatim}
+
+\subsection{解释代码}
+\begin{itemize}
+    \item \textbf{定义目标函数}：\texttt{c = [-3, -2]}，表示目标函数是 \texttt{-3x\_1 - 2x\_2}。
+    \item \textbf{定义不等式约束}：\texttt{A} 和 \texttt{b} 分别表示不等式约束的系数矩阵和常数向量：
+    \begin{itemize}
+        \item $x_1 \leq 40$
+        \item $x_2 \leq 60$
+        \item $4x_1 + 2x_2 \leq 180$
+    \end{itemize}
+    
+    \item \textbf{定义变量界}：\texttt{x0\_bounds} 和 \texttt{x1\_bounds} 表示变量的下界为0，上界无限制。
+    \item \textbf{求解线性规划问题}：使用 \texttt{linprog} 函数求解，选择 \texttt{method='highs'}。
+    \item \textbf{输出结果}：打印最佳解和最大化的利润。
+\end{itemize}
+
+
+\section{linprog函数的求解过程}
+\texttt{linprog} 是 SciPy 库中的一个函数，用于求解线性规划问题。它内部实现了多种算法，包括单纯形法（Simplex Method）和内点法（Interior Point Method）。具体选择哪种算法可以通过 \texttt{method} 参数来指定。
+
+\subsection{linprog 函数的参数}
+\begin{itemize}
+    \item \textbf{c}：目标函数的系数向量。
+    \item \textbf{A\_ub}：不等式约束的系数矩阵（可选）。
+    \item \textbf{b\_ub}：不等式约束的常数向量（可选）。
+    \item \textbf{A\_eq}：等式约束的系数矩阵（可选）。
+    \item \textbf{b\_eq}：等式约束的常数向量（可选）。
+    \item \textbf{bounds}：变量的上下界（可选）。
+    \item \textbf{method}：求解方法，可以是 \texttt{'highs'}、\texttt{'simplex'}、\texttt{'interior-point'} 等。
+\end{itemize}
+
+\subsection{linprog 函数的求解过程}
+\begin{enumerate}
+    \item \textbf{预处理}：将问题转换为标准形式，并处理变量的上下界。
+    \item \textbf{选择算法}：根据 \texttt{method} 参数选择适当的求解算法。
+    \item \textbf{迭代求解}：使用选择的算法逐步迭代，更新决策变量，优化目标函数，直到满足收敛条件或达到最大迭代次数。
+    \item \textbf{结果处理}：输出最优解、最优目标值和求解状态。
+\end{enumerate}
+
+\end{document}
+

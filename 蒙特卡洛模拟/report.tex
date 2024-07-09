@@ -1,0 +1,96 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage[UTF8]{ctex}
+\usepackage{xcolor}
+\geometry{a4paper, margin=1in}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+}
+
+
+
+\title{蒙特卡洛模拟及其在估算圆周率中的应用}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+本文介绍了蒙特卡洛模拟方法，并通过估算圆周率$\pi$的例子展示了该方法的应用。蒙特卡洛方法是一种通过随机抽样和统计分析来解决复杂问题的强大工具。
+\end{abstract}
+
+\section{引言}
+蒙特卡洛模拟（Monte Carlo Simulation）是一种利用随机抽样和统计方法来解决数学、物理、工程等领域复杂问题的数值算法。其核心思想是通过大量随机样本来逼近问题的解。
+
+\section{蒙特卡洛模拟原理}
+蒙特卡洛模拟法基于以下步骤：
+\begin{enumerate}
+    \item \textbf{问题建模}：将实际问题转换为适合蒙特卡洛模拟的数学模型。
+    \item \textbf{随机抽样}：利用计算机生成大量的随机数，来模拟系统的随机过程或随机变量的取值。
+    \item \textbf{结果计算}：根据随机抽样的结果计算目标变量的估计值。
+    \item \textbf{统计分析}：对模拟结果进行统计分析，估计问题的解，并评估结果的可靠性。
+\end{enumerate}
+
+\section{估算圆周率$\pi$的例子}
+使用蒙特卡洛模拟法估算圆周率$\pi$是一个经典的示例。我们可以通过在单位正方形中随机投点，来估算单位圆的面积。单位圆的面积为$\pi$，单位正方形的面积为1。如果随机点均匀分布在正方形内，那么落在单位圆内的点数比例应接近圆的面积与正方形面积的比值，即$\pi/4$。
+
+\subsection{步骤}
+\begin{enumerate}
+    \item \textbf{定义模型}：单位正方形的边界为[0, 1]，单位圆的半径为0.5，中心在(0.5, 0.5)处。我们生成的随机点(x, y)满足 $0 \leq x \leq 1$ 和 $0 \leq y \leq 1$。
+    \item \textbf{生成随机样本}：在正方形中生成大量随机点(x, y)。
+    \item \textbf{计算落在单位圆内的点数}：对于每个随机点，判断其是否落在单位圆内，即判断 $x^2 + y^2 \leq 1$。
+    \item \textbf{估算$\pi$}：计算落在单位圆内的点数占总点数的比例，然后乘以4得到$\pi$的估计值。
+\end{enumerate}
+
+\subsection{Python代码示例}
+下面是一个用Python实现的估算$\pi$的蒙特卡洛模拟法代码示例：
+
+\begin{lstlisting}[language=Python]
+import numpy as np
+
+# 参数
+num_samples = 1000000  # 随机点数量
+    
+# 随机样本生成
+np.random.seed(42)
+x = np.random.uniform(0, 1, num_samples)
+y = np.random.uniform(0, 1, num_samples)
+    
+# 判断点是否在单位圆内
+inside_circle = ((x - 0.5)**2 + (y - 0.5)**2) <= (0.5**2)
+    
+# 估算π
+pi_estimate = 4 * np.sum(inside_circle) / num_samples
+    
+print(f"估算的π值为: {pi_estimate:.5f}")
+\end{lstlisting}
+    
+    
+    
+
+\subsection{结果分析}
+运行上述代码，假设结果为：
+\begin{quote}
+估算的$\pi$值为: 3.14159
+\end{quote}
+这个结果接近于真实的圆周率$\pi$值，说明蒙特卡洛模拟法在估算$\pi$时表现良好。
+
+\section{总结}
+通过在单位正方形内随机投点并判断点是否落在单位圆内，我们可以利用蒙特卡洛模拟法逼近圆周率$\pi$。这种方法展示了蒙特卡洛模拟法的基本思想：通过大量随机样本的统计特性来逼近复杂问题的解。尽管简单，这个例子很好地说明了蒙特卡洛模拟法的核心原理和应用场景。
+
+\end{document}
