@@ -1,42 +1,61 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from pyswarms.single import GlobalBestPSO
+plt.rcParams['font.sans-serif']=['SimHei'] #显示中文
+# 定义目标函数
+def objective_function(x):
+    return (x[:,0]-3)**2+(x[:,1]-4)**2
 
-# Rosenbrock函数
-def rosenbrock(x, y):
-    return (1 - x)**2 + 100 * (y - x**2)**2
+# 定义约束条件
+def constraint(x):
+    constraints = [
+        x[:,0] + x[:,1] >= 5  # 线性约束：x0 + x1 >= 5
+    ]
+    return np.all(constraints, axis=0)
 
-# 参数初始化
-w = 0.5
-c1 = 1.5
-c2 = 1.5
-N = 30
-T = 100
-x_bound = [-10, 10]
-y_bound = [-10, 10]
-
-# 粒子位置和速度初始化
-particles = np.random.rand(N, 2) * (x_bound[1] - x_bound[0]) + x_bound[0]
-velocities = np.zeros((N, 2))
-
-# 记录个体极值和全局极值
-pBest = particles.copy()
-gBest = particles[np.argmin([rosenbrock(p[0], p[1]) for p in particles])]
-
-# 迭代更新
-for t in range(T):
-    for i in range(N):
-        fitness = rosenbrock(particles[i, 0], particles[i, 1])
-        if fitness < rosenbrock(pBest[i, 0], pBest[i, 1]):
-            pBest[i] = particles[i]
-        if fitness < rosenbrock(gBest[0], gBest[1]):
-            gBest = particles[i]
+# 惩罚函数
+def penalized_objective_function(x):
+    penalty = np.zeros((x.shape[0],1))
+    penalty[constraint(x)]=500
     
-    for i in range(N):
-        r1, r2 = np.random.rand(), np.random.rand()
-        velocities[i] = (w * velocities[i] 
-                         + c1 * r1 * (pBest[i] - particles[i])
-                         + c2 * r2 * (gBest - particles[i]))
-        particles[i] += velocities[i]
+    return objective_function(x) + penalty.reshape(-1)
 
-# 输出最优解
-print("最佳位置:", gBest)
-print("最小值:", rosenbrock(gBest[0], gBest[1]))
+# 修复函数
+def repair(x):
+    if x[0] + x[1] < 5:
+        x[1] = 5 - x[0]
+    
+    return x
+
+# 粒子群优化参数
+n_particles = 1000
+n_dimensions = 2  # 假设问题有4个变量
+options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+
+# 初始化粒子的位置和边界
+lower_bound = np.array([0, 0])
+upper_bound = np.array([5, 5])
+
+# 使用GlobalBestPSO进行优化
+optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=n_dimensions, options=options, bounds=(lower_bound, upper_bound))
+best_cost, best_position = optimizer.optimize(penalized_objective_function, iters=1000)
+
+#修复最佳位置，使其满足约束条件
+#best_position = repair(best_position)
+
+print('Best position:', best_position)
+print('Best cost:', best_cost)
+
+# 可视化结果
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.plot(optimizer.cost_history)
+ax.set_title("目标函数（-利润）变化曲线")
+ax.set_xlabel("迭代次数")
+ax.set_ylabel("成本")
+plt.show()
+
+
+
+
+
+

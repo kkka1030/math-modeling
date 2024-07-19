@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section*{单目标优化}
+
+单目标优化（Single Objective Optimization）是指在优化过程中只涉及一个目标函数的优化问题。其核心在于找到一个变量或一组变量的值，使得该目标函数达到最优（最大或最小）。单目标优化在工程、经济、管理等各个领域中有广泛应用。
+
+\subsection*{单目标优化的基本概念}
+
+\begin{itemize}
+    \item \textbf{目标函数}：需要优化的函数，通常记为 $ f(x) $，其中 $ x $ 是决策变量或设计变量的向量。
+    \item \textbf{决策变量}：优化过程中可以调整的变量，通常表示为向量 $ x $。
+    \item \textbf{约束条件}：决策变量必须满足的一些限制条件，可以分为等式约束和不等式约束。一般形式为 $ g_i(x) \leq 0 $ 和 $ h_j(x) = 0 $。
+    \item \textbf{可行域}：所有满足约束条件的决策变量组成的集合，即决策变量的取值范围。
+    \item \textbf{最优解}：使目标函数达到最优（最大或最小）的决策变量的值。
+\end{itemize}
+
+\subsection*{单目标优化的分类}
+
+根据目标函数和约束条件的不同，单目标优化问题可以分为以下几类：
+
+\begin{itemize}
+    \item \textbf{无约束优化}：目标函数没有约束条件，优化问题可以用如下形式表示：
+    \[
+    \text{minimize} \; f(x)
+    \]
+    \item \textbf{有约束优化}：目标函数有约束条件，优化问题可以用如下形式表示：
+    \[
+    \begin{aligned}
+    & \text{minimize} \; f(x) \\
+    & \text{subject to} \; g_i(x) \leq 0, \; i = 1, 2, \ldots, m \\
+    & h_j(x) = 0, \; j = 1, 2, \ldots, p
+    \end{aligned}
+    \]
+\end{itemize}
+
+\subsection*{常见的单目标优化方法}
+
+\begin{itemize}
+    \item \textbf{解析法}：适用于简单的、可导的目标函数，通过求导数并求解方程得到最优解。
+    \item \textbf{数值法}：适用于复杂的、不可导的目标函数，通过迭代的方法逐步逼近最优解，如梯度下降法、牛顿法等。
+    \item \textbf{启发式算法}：适用于复杂的、多峰的、非连续的目标函数，通过模拟自然过程或生物行为来寻找最优解，如遗传算法、粒子群优化、模拟退火等。
+    \item \textbf{线性规划}：适用于目标函数和约束条件均为线性的优化问题，通过单纯形法等方法求解。
+\end{itemize}
+
+\subsection*{单目标优化的应用}
+
+单目标优化在实际应用中非常广泛，例如：
+
+\begin{itemize}
+    \item \textbf{工程设计}：如结构优化、参数调优等。
+    \item \textbf{经济管理}：如投资组合优化、资源分配等。
+    \item \textbf{机器学习}：如模型参数优化、超参数调优等。
+\end{itemize}
+
+总结来说，单目标优化是最常见的一类优化问题，重点在于如何选择合适的优化方法来解决特定的优化问题。
+
+\end{document}
